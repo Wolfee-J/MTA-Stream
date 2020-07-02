@@ -1,0 +1,24 @@
+<meta>
+	<info type="script" name="MTA-Stream" author="Wolfe" description="MTA-Stream map loading system" version="1.0" />
+	
+	<script type="client" src="async.lua" />
+	<script type="client" src="Client/Streamer_C.lua" />
+	<script type="client" src="Client/WindsHandler_C.lua" />
+	<script type="client" src="Client/NightHandler_C.lua" />
+	<script type="client" src="Client/WindowHandler_C.lua" />
+	<file type="client" src="Client/WindowHandler_C.fx" />
+	
+	<script type="server" src="async.lua" />
+	<script type="server" src="Server/ID Handler_S.lua" />
+	<script type="server" src="Server/Streamer_S.lua" />
+	
+	<export function="getMaps" type="client"/>
+	
+	<export function="getMaps" type="server"/>
+	<export function="streamObject" type="server"/>
+	<export function="changeObjectModel" type="server"/>
+	<export function="getMapElements" type="server"/>
+	<export function="blackList" type="server"/>
+	
+
+</meta>
