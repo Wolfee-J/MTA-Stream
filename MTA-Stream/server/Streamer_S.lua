@@ -227,9 +227,9 @@ function streamObject(model,x,y,z,xr,yr,zr,resource,dim,int)
 			setElementCollisionsEnabled(lowLOD,false)
 			setElementID(lowLOD,model)	
 			setElementData(lowLOD,'id',model)
-			
-			setElementInterior(lowLOD,dim)
-			setElementDimension(lowLOD,int)
+	
+			setElementInterior(lowLOD,int or 0)
+			setElementDimension(lowLOD,dim or -1)
 		end
 		
 		if cull then
