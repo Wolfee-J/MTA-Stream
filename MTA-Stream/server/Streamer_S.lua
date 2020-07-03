@@ -159,7 +159,7 @@ function loadMap (resource)																				 -- // Load the map
 					end
 				end
 					
-				local object = streamObject(SplitB[1],tonumber(SplitB[4])+XA,tonumber(SplitB[5])+YA,tonumber(SplitB[6])+ZA,tonumber(SplitB[7]),tonumber(SplitB[8]),tonumber(SplitB[9]),resourceName,tonumber(SplitB[2]),tonumber(SplitB[3]))  -- ## 
+				local object = streamObject(SplitB[1],tonumber(SplitB[4])+XA,tonumber(SplitB[5])+YA,tonumber(SplitB[6])+ZA,tonumber(SplitB[7]),tonumber(SplitB[8]),tonumber(SplitB[9]),resourceName,tonumber(SplitB[3]),tonumber(SplitB[2]))  -- ## 
 				if object then
 					setElementInterior(object,tonumber(SplitB[2]))
 					setElementDimension(object,tonumber(SplitB[3]))
