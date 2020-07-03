@@ -71,6 +71,7 @@ addEventHandler( "MTAStream_Client", localPlayer, loadMap )
 function loadedFunction (resourceName)
 	local endTickCount = getTickCount ()-startTickCount
 	triggerServerEvent ( "onPlayerLoad", resourceRoot, tostring(endTickCount),resourceName )
+	createTrayNotification( 'You have finished loading : '..resourceName, "info" )
 end
 
 function requestTextureArchive(path)
