@@ -1,5 +1,6 @@
 debug.sethook(nil)
 
+
 for i=550,20000 do
     removeWorldModel(i,10000,0,0,0)
 end
@@ -14,6 +15,8 @@ end
 
 -- Tables --
 data = {id={},resourceObjects={},globalObjects = {},resourceData={},globalData = {}}
+suffixList = {'gta3','mta'}
+
 blacklist = {}
  -- ID defines the assigned SA ID, objects are the objects per SID, resource defines objects per resource.
  
@@ -25,10 +28,11 @@ blacklist = {}
 			if getModelFromID(v) then
 				local restoreID = getModelFromID(v)
 				if idused[restoreID] and (not (idused[restoreID] == restoreID)) then
+					local name = idused[restoreID]
 					data.id[idused[restoreID]] = nil
 					idused[restoreID] = true
 					triggerClientEvent ("restoreModel",root,restoreID)
-					changeObjectModel(idused[restoreID],getFreeID(idused[restoreID])) -- Changes previous element to a new ID and loads the SA default
+					changeObjectModel(name,getFreeID(name)) -- Changes previous element to a new ID and loads the SA default
 				end
 				idused[restoreID] = restoreID -- Locks said ID to SA model
 			end
@@ -37,10 +41,11 @@ blacklist = {}
 		if getModelFromID(model) then
 			local restoreID = getModelFromID(model)
 			if idused[restoreID] and (not (idused[restoreID] == restoreID)) then
+				local name = idused[restoreID]
 				data.id[idused[restoreID]] = nil
 				idused[restoreID] = true
 				triggerClientEvent ("restoreModel",root,restoreID)
-				changeObjectModel(idused[restoreID],getFreeID(idused[restoreID])) -- Changes previous element to a new ID and loads the SA default
+				changeObjectModel(name,getFreeID(name)) -- Changes previous element to a new ID and loads the SA default
 			end
 			idused[restoreID] = restoreID -- Locks said ID to SA model
 		end
@@ -59,25 +64,30 @@ function toBoolean(input)
 	return (string.count(input,'tru') > 0)
 end
 
-function fetchPlacement(dictonary)																		 -- // Allows backwards compatability
-	if fileExists(':'..dictonary..'/gta3.CSP') then
-		return fileOpen(':'..dictonary..'/gta3.CSP')
-	elseif fileExists(':'..dictonary..'/gta3.JSP') then
-		return fileOpen(':'..dictonary..'/gta3.JSP')
-	elseif fileExists(':'..dictonary..'/gta3.MSP') then
-		return fileOpen(':'..dictonary..'/gta3.MSP')
+function fetchPlacement(dictonary,sufix)																		 -- // Allows backwards compatability
+	if fileExists(':'..dictonary..'/'..sufix..'.CSP') then
+		return fileOpen(':'..dictonary..'/'..sufix..'.CSP')
+	elseif fileExists(':'..dictonary..'/'..sufix..'.JSP') then
+		return fileOpen(':'..dictonary..'/'..sufix..'.JSP')
+	elseif fileExists(':'..dictonary..'/'..sufix..'.MSP') then
+		return fileOpen(':'..dictonary..'/'..sufix..'.MSP')
+	else
+		return false
 	end
 end
 
-function fetchDefintion(dictonary)																		 -- // Allows backwards compatability
-	if fileExists(':'..dictonary..'/gta3.CSD') then
-		return fileOpen(':'..dictonary..'/gta3.CSD')
-	elseif fileExists(':'..dictonary..'/gta3.JSD') then
-		return fileOpen(':'..dictonary..'/gta3.JSD')
-	elseif fileExists(':'..dictonary..'/gta3.MSD') then
-		return fileOpen(':'..dictonary..'/gta3.MSD')
+function fetchDefintion(dictonary,sufix)																		 -- // Allows backwards compatability
+	if fileExists(':'..dictonary..'/'..sufix..'.CSD') then
+		return fileOpen(':'..dictonary..'/'..sufix..'.CSD')
+	elseif fileExists(':'..dictonary..'/'..sufix..'.JSD') then
+		return fileOpen(':'..dictonary..'/'..sufix..'.JSD')
+	elseif fileExists(':'..dictonary..'/'..sufix..'.MSD') then
+		return fileOpen(':'..dictonary..'/'..sufix..'.MSD')
+	else
+		return false
 	end
 end
+
 
 function loadMap (resource)																				 -- // Load the map
 	local tickCount = getTickCount()
@@ -85,88 +95,87 @@ function loadMap (resource)																				 -- // Load the map
 	data.resourceObjects[resourceName] = {}
 	data.resourceData[resourceName] = {}
 	
-	
-	local File = fetchPlacement(resourceName)
-	local Data = fileRead(File, fileGetSize(File))
-	local ProccessedA = split(Data,10)
-	fileClose (File)
-	
-	for i,vA in pairs(ProccessedA) do
-		if not (i == 1) then
-			local SplitB = split(vA,",")
-			if not (SplitB[1] == '!') then -- If the first character is equal to # then ignore, used for debugging.
-				local model = (SplitB[1])
-				if model then
-					if getModelFromID(model) then
-						local restoreID = getModelFromID(model)
-						if idused[restoreID] and (not (idused[restoreID] == restoreID)) then
-							data.id[idused[restoreID]] = nil
-							idused[restoreID] = true
-							triggerClientEvent ("restoreModel",root,restoreID)
-							changeObjectModel(idused[restoreID],getFreeID(idused[restoreID])) -- Changes previous element to a new ID and loads the SA default
+	for _,suffix in pairs(suffixList) do
+		local File = fetchPlacement(resourceName,suffix)
+		
+		if File then
+			local Data = fileRead(File, fileGetSize(File))
+			local ProccessedA = split(Data,10)
+			fileClose (File)
+			
+			for i,vA in pairs(ProccessedA) do
+				if not (i == 1) then
+					local SplitB = split(vA,",")
+					if not (SplitB[1] == '!') then -- If the first character is equal to # then ignore, used for debugging.
+						local model = (SplitB[1])
+						if model then
+							if getModelFromID(model) then
+								blackList(model)
+							end
 						end
-						idused[restoreID] = restoreID -- Locks said ID to SA model
 					end
 				end
 			end
+			
+			
+			local File = fetchDefintion(resourceName,suffix)
+			
+			local Data =  fileRead(File, fileGetSize(File))
+			local Proccessed = split(Data,10)
+			fileClose (File)
+
+			iA = 0
+			
+			Async:setPriority("medium")
+
+			Async:foreach(Proccessed, function(vA)
+				iA = iA + 1
+				local SplitA = split(vA,",")
+				if (type(SplitA) == 'table') then
+					if not (SplitA[1] == '!') then -- If the first character is equal to # then ignore, used for debugging.
+						for i=1,8 do
+							if not SplitA[i] then
+								print(SplitA[1],'| Object definition load error','| Row '..i)					-- // If there is any missing information inform the server, added 'Row' information for better debugging.
+								return
+							end
+						end
+						defineDefintion(SplitA,resourceName) -- ## 
+					end
+				end
+			end)
+			
+			
+			XA,YA,ZA = 0,0,0
+			iA = 0
+			
+			Async:setPriority("medium")
+	
+			Async:foreach(ProccessedA, function(vA)
+				iA = iA + 1
+				if (iA == 1) then
+					local x,y,z = split(vA,",")[1],split(vA,",")[2],split(vA,",")[3]
+					XA,YA,ZA = tonumber(x),tonumber(y),tonumber(z)
+				else
+					local SplitB = split(vA,",")
+					if not (SplitB[1] == '!') then -- If the first character is equal to # then ignore, used for debugging.
+						for i=1,9 do
+							if not SplitB[i] then
+								print(SplitB[1],'| Object placement load error','| Row '..i)					-- // If there is any missing information inform the server, added 'Row' information for better debugging.
+								return
+							end
+						end
+							
+						local object = streamObject(SplitB[1],tonumber(SplitB[4])+XA,tonumber(SplitB[5])+YA,tonumber(SplitB[6])+ZA,tonumber(SplitB[7]),tonumber(SplitB[8]),tonumber(SplitB[9]),resourceName,tonumber(SplitB[3]),tonumber(SplitB[2]))  -- ## 
+						if object then
+							setElementInterior(object,tonumber(SplitB[2]))
+							setElementDimension(object,tonumber(SplitB[3]))
+						end
+					end
+				end
+			end)
 		end
 	end
 	
-	
-	local File = fetchDefintion(resourceName)
-	local Data =  fileRead(File, fileGetSize(File))
-	local Proccessed = split(Data,10)
-	fileClose (File)
-
-	Async:setPriority("medium")
-	
-	iA = 0
-	
-	Async:foreach(Proccessed, function(vA)
-		iA = iA + 1
-		local SplitA = split(vA,",")
-		if (type(SplitA) == 'table') then
-			if not (SplitA[1] == '!') then -- If the first character is equal to # then ignore, used for debugging.
-				for i=1,8 do
-					if not SplitA[i] then
-						print(SplitA[1],'| Object definition load error','| Row '..i)					-- // If there is any missing information inform the server, added 'Row' information for better debugging.
-						return
-					end
-				end
-				--iprint(SplitA)
-				defineDefintion(SplitA,resourceName) -- ## 
-			end
-		end
-	end)
-	
-	
-	Async:setPriority("medium")
-	
-	XA,YA,ZA = 0
-	iA = 0
-	Async:foreach(ProccessedA, function(vA)
-		iA = iA + 1
-		if iA == 1 then
-			local x,y,z = split(vA,",")[1],split(vA,",")[2],split(vA,",")[3]
-			XA,YA,ZA = tonumber(x),tonumber(y),tonumber(z)
-		else
-			local SplitB = split(vA,",")
-			if not (SplitB[1] == '!') then -- If the first character is equal to # then ignore, used for debugging.
-				for i=1,9 do
-					if not SplitB[i] then
-						print(SplitB[1],'| Object placement load error','| Row '..i)					-- // If there is any missing information inform the server, added 'Row' information for better debugging.
-						return
-					end
-				end
-					
-				local object = streamObject(SplitB[1],tonumber(SplitB[4])+XA,tonumber(SplitB[5])+YA,tonumber(SplitB[6])+ZA,tonumber(SplitB[7]),tonumber(SplitB[8]),tonumber(SplitB[9]),resourceName,tonumber(SplitB[3]),tonumber(SplitB[2]))  -- ## 
-				if object then
-					setElementInterior(object,tonumber(SplitB[2]))
-					setElementDimension(object,tonumber(SplitB[3]))
-				end
-			end
-		end
-	end)
 	local endTick = getTickCount()
 	print(resourceName,'Loaded In : '..tonumber(endTick-tickCount),'Milisecounds')
 end
@@ -190,14 +199,7 @@ end
 
 function streamObject(model,x,y,z,xr,yr,zr,resource,dim,int)
 	if getModelFromID(model) then
-		local restoreID = getModelFromID(model)
-		if idused[restoreID] and (not (idused[restoreID] == restoreID)) then
-			data.id[idused[restoreID]] = nil
-			idused[restoreID] = true
-			triggerClientEvent ("restoreModel",root,restoreID)
-			changeObjectModel(idused[restoreID],getFreeID(idused[restoreID])) -- Changes previous element to a new ID and loads the SA default
-		end
-		idused[restoreID] = restoreID -- Locks said ID to SA model
+		blackList(model)
 	end
 	
 	local cull,lod,id,custom = getData(model)
@@ -244,6 +246,7 @@ end
 
 function changeObjectModel(name,newModel)
 	if data.globalData[name] then
+		print(name,'Revoked')
 		data.globalData[name][10] = newModel
 		data.resourceData[data.globalData[name][11]][name][10] = newModel
 		

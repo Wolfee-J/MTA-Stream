@@ -57,7 +57,7 @@ function loadMap ( Proccessed,resourceName )
 				end
 			end
 			
-			engineSetModelLODDistance (data[10],tonumber(data[4]))
+			engineSetModelLODDistance (data[10],math.max(tonumber(data[4]),270))
 			
 			table.insert(resource[resourceName],cache)
 		end
@@ -70,7 +70,7 @@ addEventHandler( "MTAStream_Client", localPlayer, loadMap )
 
 function loadedFunction (resourceName)
 	local endTickCount = getTickCount ()-startTickCount
-	triggerServerEvent ( "onPlayerLoad", resourceRoot, tostring(endTickCount),resourceName )
+	triggerServerEvent ( "onPlayerLoad", root, tostring(endTickCount),resourceName )
 	createTrayNotification( 'You have finished loading : '..resourceName, "info" )
 end
 
@@ -134,7 +134,7 @@ function forceLoad(data,resourceName)
 				end
 			end
 			table.insert(resource[resourceName],cache)
-			engineSetModelLODDistance (data[10],tonumber(data[4]))
+			engineSetModelLODDistance (data[10],math.max(tonumber(data[4]),270))
 		end
 	end
 end
