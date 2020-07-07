@@ -16,14 +16,14 @@ end
 
 
 function readFile()
-	local File =  fileOpen('Data/IDs.ID')   
+	local File =  fileOpen('data/IDs.ID')   
 	local Data =  fileRead(File, fileGetSize(File))
 	 fileClose ( File)
 	return split(Data,10)
 end
 
 function readFile2()
-	local File =  fileOpen('Data/FullIDs.ID')   
+	local File =  fileOpen('data/FullIDs.ID')   
 	local Data =  fileRead(File, fileGetSize(File))
 	 fileClose ( File)
 	return split(Data,10)
