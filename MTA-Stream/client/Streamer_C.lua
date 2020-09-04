@@ -18,8 +18,45 @@ function loadMap ( Proccessed,resourceName )
 	for i,v in pairs(Proccessed) do
 		table.insert(dataToLoad,v)
 	end
-	
-	
+	--Put DFF,COL,TXD into a Async methods would fixed the white texture bug
+	Async:setPriority("high")
+	Async:foreach(dataToLoad, function(data)
+		
+		if tonumber(data[10]) then
+			-- load col
+			local path = ':'..resourceName..'/Content/coll/'..data[3]..'.col'
+			local collision,cache = requestCollision(path,data[3])
+			engineReplaceCOL(collision,data[10])
+			table.insert(resource[resourceName],cache)
+			
+			
+			-- load txd
+			local path = ':'..resourceName..'/Content/textures/'..data[2]..'.txd'
+			local texture,cache = requestTextureArchive(path,data[2])
+			engineImportTXD(texture,data[10])
+			table.insert(resource[resourceName],cache)
+
+			-- load dff
+			local path = ':'..resourceName..'/Content/models/'..data[1]..'.dff'
+			local model,cache = requestModel(path,data[1])
+			engineReplaceModel(model,data[10],data[5])
+			if tonumber(data[8]) and tonumber(data[9]) then
+				if engineSetModelVisibleTime then
+					engineSetModelVisibleTime(data[10],tonumber(data[9]),tonumber(data[8]))
+				end
+				addNightElement(data[1],tonumber(data[8]),tonumber(data[9]))
+			else
+				if engineSetModelVisibleTime then
+					engineSetModelVisibleTime(data[10],0,0)
+				end
+			end
+			engineSetModelLODDistance (data[10],math.max(tonumber(data[4]),270))
+			table.insert(resource[resourceName],cache)
+		end
+	end)
+
+	--[[
+	-- Old 
 	Async:setPriority("medium")
 	Async:foreach(dataToLoad, function(data)
 		if tonumber(data[10]) then
@@ -62,6 +99,7 @@ function loadMap ( Proccessed,resourceName )
 			table.insert(resource[resourceName],cache)
 		end
 	end)
+	--]]
 	vegitationElementReload()
 	loadedFunction(resourceName)
 end
