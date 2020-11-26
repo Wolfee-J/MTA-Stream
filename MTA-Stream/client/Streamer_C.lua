@@ -19,13 +19,12 @@ function loadMap ( Proccessed,resourceName )
 		table.insert(dataToLoad,v)
 	end
 	
-	
-	Async:setPriority("medium")
+	Async:setPriority("high")
 	Async:foreach(dataToLoad, function(data)
 		if tonumber(data[10]) then
-			local path = ':'..resourceName..'/Content/coll/'..data[3]..'.col'
-			local collision,cache = requestCollision(path,data[3])
-			engineReplaceCOL(collision,data[10])
+			local path = ':'..resourceName..'/Content/textures/'..data[2]..'.txd'
+			local texture,cache = requestTextureArchive(path,data[2])
+			engineImportTXD(texture,data[10])
 			table.insert(resource[resourceName],cache)
 		end
 	end)
@@ -33,9 +32,9 @@ function loadMap ( Proccessed,resourceName )
 	Async:setPriority("medium")
 	Async:foreach(dataToLoad, function(data)
 		if tonumber(data[10]) then
-			local path = ':'..resourceName..'/Content/textures/'..data[2]..'.txd'
-			local texture,cache = requestTextureArchive(path,data[2])
-			engineImportTXD(texture,data[10])
+			local path = ':'..resourceName..'/Content/coll/'..data[3]..'.col'
+			local collision,cache = requestCollision(path,data[3])
+			engineReplaceCOL(collision,data[10])
 			table.insert(resource[resourceName],cache)
 		end
 	end)
