@@ -169,10 +169,11 @@ function loadMap(ipls,ides,mapname)
 	end
 
 
-	Async:setPriority(100, 1000);
+	--Async:setPriority(100, 1000);
+	Async:setPriority("normal");
 	Async:forkey(ides, function(key,data) 
 		-- load model
-		if model_cache[data.model] == nil and data.flag ~= "SA_PROP"then
+		if model_cache[data.model] == nil and data.flag ~= "SA_PROP" then
 			loadModel(data,mapname)
 		else
 			DEBUG:addDebugMessage(string.format("Exist: %s has already loaded or is a SA Prop, skipping...\n",data.model))
