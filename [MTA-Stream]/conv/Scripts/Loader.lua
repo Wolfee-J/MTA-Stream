@@ -2,7 +2,6 @@
 Debug = {}
 IPLList = {}
 IPLList2 = {}
-USE_SA_PROPS = true
 
 function OutPutDebug2(Messege)
 	print (Messege) -- Print our messege
@@ -93,7 +92,7 @@ for i,v in pairs(IDETable) do
 			local TimeOff = Version == "SA" and tonumber(Split[7]) or nil or nil
 			local Flag = Version == "SA" and Split[5] or Split[6]
 			--if (string.count(Model,"LOD") < 1 and string.count(Model,"lod") < 1) or Defaults2[Model] then
-			if fileExists ("Resources/"..removeSpace(Model)..".dff") or Defaults2[Model] then
+			if fileExists ("Resources/"..Model..".dff") then
 				if USE_SA_PROPS and Defaults2[Model] then
 					Flag = "SA_PROP"
 					Defaults[Model] = true
