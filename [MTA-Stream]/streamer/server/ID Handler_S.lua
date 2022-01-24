@@ -29,13 +29,22 @@ function readFile2()
 	return split(Data,10)
 end
 
+-- skip problematic object models
+local badModelList = {
+	"DYN_","kmb_shutter","ab_carcass"
+}
+function isProblemModel(model_name) 
+	for _,model in ipairs(badModelList) do 
+		if string.find(model_name,model) then return true end
+	end
+	return false
+
+end
 function index(table,all)
-	Async:setPriority("high")
-	
-	Async:foreach(table, function(v)
-			local split = split(v,",")
+	for idx,v in ipairs(table) do
+		local split = split(v,",")
 		if not all then
-			if (string.count(split[2],'DYN_') < 1) then
+			if not isProblemModel(split[2]) then
 				count = count + 1
 				global[count] = tonumber(split[1])
 			end
@@ -43,7 +52,7 @@ function index(table,all)
 		
 		modelID[tonumber(split[1])] = split[2]
 		modelID[split[2]] = tonumber(split[1])
-	end)
+	end
 end
 index(readFile()) 
 index(readFile2(),true) 

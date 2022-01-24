@@ -1,8 +1,17 @@
-# MTA Stream
+# MTA Stream Improved
+### Credit
+- BluePie 'Aka Blue' for the insites reguarding Async
+- CodyJ for the original work
+- Nurupo for the enhancement
 
-(Credit to BluePie 'Aka Blue' for the insites reguarding Async)
-
-[![Discord](https://i.imgur.com/MyNY4Aw.png)](https://discord.gg/P4kmcEb)
+### Features
+- Support LODs, you can use it from original mod
+- Drawdistance has correcly fixed
+- No more random white texture issue
+- Has correcly build in parser to deal with IDE flags
+- Has ability to switch object creation mode, client side or server side
+- Even faster map load speed
+- Has ability to toogle on or off multible map by name
 
 ### How do you use it?
 

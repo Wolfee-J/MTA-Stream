@@ -1,12 +1,10 @@
 debug.sethook(nil)
-
-
-for i=550,20000 do
-    removeWorldModel(i,10000,0,0,0)
+-- initial setup --
+for i = 550, 20000 do
+	removeWorldModel(i,10000,0,0,0)
 end
-setOcclusionsEnabled(false)
 setWaterLevel(-5000)
-
+setOcclusionsEnabled(false)
 -- Events --
 events = {'onPlayerLoad','onElementBreak','onPlayerFailedLoad','fetchID','prepOriginals'}
 for i = 1,#events do
@@ -14,15 +12,27 @@ for i = 1,#events do
 end
 
 -- Tables --
-data = {id={},resourceObjects={},globalObjects = {},resourceData={},globalData = {}}
+system = {
+	objs = 0,
+	sa_objs = 0,
+	lods = 0,
+}
+data = {
+	id={},
+	resourceObjects={},
+	globalObjects = {},
+	resourceData={},
+	globalData = {},
+	placementData = {},
+}
 suffixList = {'gta3','mta'}
 
 blacklist = {}
- -- ID defines the assigned SA ID, objects are the objects per SID, resource defines objects per resource.
+-- ID defines the assigned SA ID, objects are the objects per SID, resource defines objects per resource.
+
+-- Functions --
  
- -- Functions --
- 
- function blackList(model)
+function blackList(model)
 	if (type(model) == 'table') then
 		for i,v in pairs(model) do
 			if getModelFromID(v) then
@@ -94,6 +104,7 @@ function loadMap (resource)																				 -- // Load the map
 	local resourceName = getResourceName(resource)
 	data.resourceObjects[resourceName] = {}
 	data.resourceData[resourceName] = {}
+	data.placementData[resourceName] = {}
 	
 	for _,suffix in pairs(suffixList) do
 		local File = fetchPlacement(resourceName,suffix)
@@ -124,78 +135,132 @@ function loadMap (resource)																				 -- // Load the map
 			local Proccessed = split(Data,10)
 			fileClose (File)
 
-			iA = 0
-			
-			Async:setPriority("medium")
-
-			Async:foreach(Proccessed, function(vA)
-				iA = iA + 1
+			for i,vA in ipairs(Proccessed) do 
 				local SplitA = split(vA,",")
 				if (type(SplitA) == 'table') then
+					local isError = false
 					if not (SplitA[1] == '!') then -- If the first character is equal to # then ignore, used for debugging.
-						for i=1,8 do
+						for i=1,#SplitA do
 							if not SplitA[i] then
 								print(SplitA[1],'| Object definition load error','| Row '..i)					-- // If there is any missing information inform the server, added 'Row' information for better debugging.
-								return
+								isError = true
 							end
 						end
-						defineDefintion(SplitA,resourceName) -- ## 
+						if not isError then
+							defineDefintion(SplitA,resourceName) -- ## 
+						end
 					end
 				end
-			end)
-			
-			
-			XA,YA,ZA = 0,0,0
-			iA = 0
-			
-			Async:setPriority("medium")
+			end
 	
-			Async:foreach(ProccessedA, function(vA)
-				iA = iA + 1
-				if (iA == 1) then
+			-- fix the lod render dist
+			for ID,obj in pairs(data.resourceData[resourceName]) do
+				if obj.lod and data.resourceData[resourceName][obj.lod] then 
+					obj.draw = data.resourceData[resourceName][obj.lod].draw
+					--print(string.format("LOD: Fix %s draw -> %d",obj.model,obj.draw))
+				end
+			end
+			
+
+			-- make ipl list
+			XA,YA,ZA = 0,0,0
+			for iA,vA in ipairs(ProccessedA) do
+				if (iA == 1) then -- deal with offset
 					local x,y,z = split(vA,",")[1],split(vA,",")[2],split(vA,",")[3]
 					XA,YA,ZA = tonumber(x),tonumber(y),tonumber(z)
 				else
 					local SplitB = split(vA,",")
 					if not (SplitB[1] == '!') then -- If the first character is equal to # then ignore, used for debugging.
-						for i=1,9 do
+						local isError = false
+						for i=1,#SplitB do
 							if not SplitB[i] then
 								print(SplitB[1],'| Object placement load error','| Row '..i)					-- // If there is any missing information inform the server, added 'Row' information for better debugging.
-								return
+								isError = true
 							end
 						end
-							
-						local object = streamObject(SplitB[1],tonumber(SplitB[4])+XA,tonumber(SplitB[5])+YA,tonumber(SplitB[6])+ZA,tonumber(SplitB[7]),tonumber(SplitB[8]),tonumber(SplitB[9]),resourceName,tonumber(SplitB[3]),tonumber(SplitB[2]))  -- ## 
-						if object then
-							setElementInterior(object,tonumber(SplitB[2]))
-							setElementDimension(object,tonumber(SplitB[3]))
+						if not isError then
+							definePlacement(SplitB,resourceName)
 						end
 					end
 				end
-			end)
+			end
 		end
 	end
 	
+
+
+
 	local endTick = getTickCount()
 	print(resourceName,'Loaded In : '..tonumber(endTick-tickCount),'Milisecounds')
+	print(string.format("TOTAL OBJS: %d, LODS: %d SA_OBJS: %d",system.objs,system.lods,system.sa_objs))
+	print(string.format("%d Custom Models in total.",system.objs+system.lods))
+
 end
 
 function defineDefintion(dTable,resourceName) -- Define defintion stuff
-	local ID,model,texture,collision,draw,alpha,backface,lod,turnOn,turnOff = unpack(dTable)
-	data.resourceData[resourceName][ID] = {model,texture,collision,draw,toBoolean(alpha),toBoolean(backface),toBoolean(lod),turnOn,turnOff,getFreeID(ID),resourceName} -- # If SA model exists using same ID then this will be re proccessed!
+	local ID,model,texture,collision,draw,flag,backface,lod,turnOn,turnOff = unpack(dTable)
+	--data.resourceData[resourceName][ID] = {model,texture,collision,draw,flag,toBoolean(backface),lod,turnOn,turnOff,getFreeID(ID),resourceName} -- # If SA model exists using same ID then this will be re proccessed!
+	-- check sa_props
+	if flag == "SA_PROP" and getModelFromID(model) then
+		blackList(model)
+	end
+
+	data.resourceData[resourceName][ID] = {
+		id = flag == "SA_PROP" and getModelFromID(model) or getFreeID(ID),
+		model = model,
+		texture = texture,
+		collision = collision,
+		draw = tonumber(draw),
+		flag = flag,
+		cull = toBoolean(backface),
+		lod = lod and string.find(lod,"nil") == nil and lod:gsub('\r', '') or false,
+		turnOn = tonumber(turnOn),
+		turnOff = tonumber(turnOff),
+		resourceName = resourceName,
+	}
 	data.globalData[ID] = data.resourceData[resourceName][ID]
 	
-end
-
-function getData(name)
-	if data.globalData[name] then
-		local _,_,_,_,_,cull,lod,_,_,id = unpack(data.globalData[name])
-		return cull,lod,id,true
+	if flag == "SA_PROP" then -- deal with sa object
+		system.sa_objs = system.sa_objs + 1
 	else
-		return false,false,getModelFromID(name)
+		system.objs = system.objs + 1 
+	end
+
+	if lod ~= "nil" then 
+		system.lods = system.lods + 1
 	end
 end
+function definePlacement(dTable,resourceName) 
 
+
+	local model,int,dim,x,y,z,rx,ry,rz,flag= unpack(dTable)
+	-- find model id
+	--[[
+	if getModelFromID(model) then
+		blackList(model)
+	end
+	]]
+	
+	local modelInfo = getData(model)
+	if not modelInfo then 
+		print(model.." id not found")
+		return
+	end
+	local id = modelInfo.id
+
+
+	table.insert(data.placementData[resourceName], {
+		id = id,
+		model = model,
+		int = int,
+		dim = dim,
+		pos = {x,y,z},
+		rot = {rx,ry,rz},
+		info = modelInfo,
+		flag = flag and flag:gsub('\r', '') or "OBJ",
+	})
+
+end
 
 function streamObject(model,x,y,z,xr,yr,zr,resource,dim,int)
 	if getModelFromID(model) then
@@ -244,11 +309,37 @@ function streamObject(model,x,y,z,xr,yr,zr,resource,dim,int)
 	end
 end
 
+
+function getData(name)
+	if data.globalData[name] then
+		return data.globalData[name]
+	else
+		return false
+	end
+end
+function setElementFlag(element,flag)
+
+	local flagTable = {
+		["2097152"] = function() -- disable backface culling
+			setElementDoubleSided(element,true)
+		end,
+		["128"] = function() -- breakable
+			print("Breakable")
+			--setObjectBreakable(element,true)
+		end,
+		["2097228"] = function() -- alpha on
+
+		end,
+	}
+	if flagTable[flag] then flagTable[flag]() end
+end
+
 function changeObjectModel(name,newModel)
 	if data.globalData[name] then
 		print(name,'Revoked')
-		data.globalData[name][10] = newModel
-		data.resourceData[data.globalData[name][11]][name][10] = newModel
+		data.globalData[name].id = newModel
+		local resName = data.globalData[name].resourceName
+		data.resourceData[resName][name].id = newModel
 		
 		
 		for i,v in pairs(getElementsByType('object')) do
@@ -256,15 +347,17 @@ function changeObjectModel(name,newModel)
 				setElementModel(v,newModel)
 			end
 		end
-		triggerClientEvent ("loadModel",root,data.globalData[name],data.globalData[name][11])
+		triggerClientEvent ("loadModel",root,data.globalData[name],resName)
 	end
 end
 
 function onResourceLoad ( resource )
+
 	local resource = getResourceFromName(resource)
 	if getResourceInfo ( resource, 'Streamer') or getResourceInfo ( resource, 'cStream') then
 		local name = getResourceName(resource)
-		triggerClientEvent("MTAStream_Client",client,data.resourceData[name],name )
+		--triggerClientEvent("MTAStream_Client",client,data.placementData[name],data.resourceData[name],name)
+		print(string.format("[Streamer]: map %s is ready",name))
 	end
 end
 addEvent( "onResourceLoad", true )
@@ -275,6 +368,13 @@ function playerLoaded ( loadTime,resource )
 end
 addEventHandler( "onPlayerLoad", resourceRoot, playerLoaded )
 
+
+
+function onResourceLoading(resouce)
+	print(resouce)
+end
+addEvent( "onResourceLoading", true )
+addEventHandler( "onResourceLoading", resourceRoot, onResourceLoading )
 
 function onElementDestroy()
 	if getElementType(source) == "object" then
@@ -307,7 +407,8 @@ function onResourceStop(resource)
 		data.resourceObjects[name] = nil
 	end
 end
-addEventHandler( "onResourceStop", root,onResourceStop)
+--addEventHandler( "onResourceStop", root,onResourceStop)
+
 
 function getMaps()
 	local tempTable = {}
@@ -319,4 +420,19 @@ end
 
 function getMapElements(map)
 	return data.resourceObjects[map]
+end
+
+function loadmap (player, map)
+	if data.resourceData[map] then
+		triggerClientEvent("MTAStream_ClientLoad",player,data.placementData[map],data.resourceData[map],map)
+		outputChatBox(string.format("[Streamer]: map %s start load for %s",map,getPlayerName(player)))
+	else
+		outputChatBox("map "..map.." does not exist!",player)
+	end
+end
+function unloadAllMap (player)
+	triggerClientEvent("MTAStream_ClientUnLoadAll",player)
+end
+function setMapDimenstion (player,map,dim)
+	triggerClientEvent("MTAStream_ClientSetDim",player,map,dim)
 end
