@@ -356,7 +356,9 @@ function onResourceLoad ( resource )
 	local resource = getResourceFromName(resource)
 	if getResourceInfo ( resource, 'Streamer') or getResourceInfo ( resource, 'cStream') then
 		local name = getResourceName(resource)
-		--triggerClientEvent("MTAStream_Client",client,data.placementData[name],data.resourceData[name],name)
+		if AUTO_LOAD[name] then
+			triggerClientEvent("MTAStream_Client",client,data.placementData[name],data.resourceData[name],name)
+		end
 		print(string.format("[Streamer]: map %s is ready",name))
 	end
 end
