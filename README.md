@@ -12,7 +12,7 @@
 - Has ability to switch object creation mode, client side or server side
 - Even faster map load speed
 - Has ability to toogle on or off multible map by name
-
+- Support MTA 1.5.9 new feature, request object (only avaiable in client side mode).
 ### How do you use it?
 
 - Download MTA Stream master
