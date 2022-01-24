@@ -115,41 +115,50 @@ for i,v in pairs(IPLTable) do
 	fileClose (File)
 	for iA,vA in pairs(Proccessed) do
 		local Split = split(vA,",")
+
 		--local One = string.split(vA)[1]
 		if Split[2] and tonumber(Split[1]) and tonumber(Split[3]) and tonumber(Split[4]) and (not tonumber(Split[2])) then
+			local vaildData = true
 			local ID = tonumber(Split[1])
 			local Model = removeSpace(Split[2])
-			local Interior = tonumber(Split[3])
+			-- III Does not has interior
+			local Interior = Version == "III" and 0 or tonumber(Split[3])
 			local PosX,PosY,PosZ = Split[4],Split[5],Split[6]
-			local QX,QY,QZ,QW = Split[7],Split[8],Split[9],Split[10]
-			--local QX,QY,QZ,QW = Split[10],Split[11],Split[12],Split[13] -- VC Format
-			--local xr,yr,zr = quaternion_to_euler_angle(QW,QX,QY,QZ)
-			
-			local xr,yr,zr = fromQuaternion(QX,QY,QZ,QW) -- replace algorithm
- 
-			local LOD = tonumber(Split[11])
-			if (string.count(Model,"LOD") < 1 and string.count(Model,"lod") < 1) then
-				if IDEList1[Model] or Defaults[Model] or Defaults2[Model] then -- If it doesn't exist ignore it
-					IPLList2[Model] = true
-					table.insert(IPLList,{Model,Interior,PosX,PosY,PosZ,xr,yr,zr,"OBJ"})
-				else
-					if string.count(Model,"LOD") < 1 and string.count(Model,"lod") < 1	then
-						OutPutDebug2("IPL:"..Model.." Missing IDE")
-					end
-				end
+
+
+			local QX,QY,QZ,QW = 0,0,0,0
+			if Version == "III" then
+				QX,QY,QZ,QW = Split[9],Split[10],Split[11],Split[12]
+			elseif Version == "VC" then 
+				QX,QY,QZ,QW = Split[10],Split[11],Split[12],Split[13]
+			elseif Version == "SA" then
+				QX,QY,QZ,QW = Split[7],Split[8],Split[9],Split[10]
 			else
-				table.insert(IPLList,{Model,Interior,PosX,PosY,PosZ,xr,yr,zr,"LOD"})
+				print("Incorrect IPL Posistion Data!")
+				vaildData = false
+			end
+	
+			local xr,yr,zr = fromQuaternion(QX,QY,QZ,QW)
+			
+			-- Only Sa has the lod flag in ipl
+			local LOD = Version == "SA" and tonumber(Split[11]) or -1
+
+			if vaildData then
+				if (string.count(Model,"LOD") < 1 and string.count(Model,"lod") < 1) then
+					if IDEList1[Model] or Defaults[Model] or Defaults2[Model] then -- If it doesn't exist ignore it
+						IPLList2[Model] = true
+						table.insert(IPLList,{Model,Interior,PosX,PosY,PosZ,xr,yr,zr,"OBJ"})
+					else
+						if string.count(Model,"LOD") < 1 and string.count(Model,"lod") < 1	then
+							OutPutDebug2("IPL:"..Model.." Missing IDE")
+						end
+					end
+				else
+					table.insert(IPLList,{Model,Interior,PosX,PosY,PosZ,xr,yr,zr,"LOD"})
+				end
 			end
 		end
 	end
 end
-
---[[
-for i,v in pairs(IDEList1) do -- If it doesn't exist ignore it ^
-	if IPLList2[i] then
-		IDEList[i] = v
-	end
-end
-]]
 
 IDEList = IDEList1

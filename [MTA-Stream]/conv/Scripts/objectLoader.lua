@@ -42,25 +42,7 @@ for i,v in pairs(DFFs) do
 		OutPutDebug2("Model:"..v.." Missing DFF")
 	end
 end
---[[
--- copy lods (done already in IDE)
-for i,v in pairs(LODS) do
-	if tonumber(v) ~= -1 then -- all avaialble lods
-		if fileExists ("Resources/"..v..".dff") then
 
-			if not fileExists (MapName.."/Content/models/"..v..".dff") then
-				print("Copying File : "..v..".dff")
-				fileCopy ("Resources/"..v..".dff",MapName.."/Content/models/"..v..".dff")
-			end
-	
-			local Filepath = "Content/models/"..v..".dff"
-			table.insert(meta,'	<file src="'..Filepath..'" type="client" />')
-		else
-			OutPutDebug2("Model:"..v.." Missing DFF")
-		end
-	end
-end
-]]
 
 table.insert(meta,' ')
 table.insert(meta,' ')
