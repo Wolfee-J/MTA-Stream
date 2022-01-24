@@ -3,7 +3,7 @@
 	
 	<script type="client" src="async.lua" />
 	<script type="shared" src="vendor.lua" />
-	<script type="client" src="config.lua" type="shared"/>
+	<script type="shared" src="config.lua"/>
 	<script type="client" src="client/Streamer_C.lua" />
 	<script type="client" src="client/WindsHandler_C.lua" />
 	<script type="client" src="client/NightHandler_C.lua" />
