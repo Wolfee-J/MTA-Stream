@@ -84,13 +84,14 @@ for i,v in pairs(IDETable) do
 	for iA,vA in pairs(Proccessed) do
 		local Split = split(vA,",")
 		if Split[2] and tonumber(Split[1]) and (not tonumber(Split[2])) then
+			-- Id, ModelName, TxdName, MeshCount, DrawDistance, Flags -VC
 			local ID = tonumber(Split[1])
 			local Model = removeSpace(Split[2])
 			local Texture = removeSpace(Split[3])
-			local DrawDistance = tonumber(Split[4])
-			local TimeOn = tonumber(Split[6]) or nil
-			local TimeOff = tonumber(Split[7]) or nil
-			local Flag = Split[5]
+			local DrawDistance = Version == "SA" and tonumber(Split[4]) or tonumber(Split[5])
+			local TimeOn = Version == "SA" and tonumber(Split[6]) or nil or nil
+			local TimeOff = Version == "SA" and tonumber(Split[7]) or nil or nil
+			local Flag = Version == "SA" and Split[5] or Split[6]
 			--if (string.count(Model,"LOD") < 1 and string.count(Model,"lod") < 1) or Defaults2[Model] then
 			if fileExists ("Resources/"..removeSpace(Model)..".dff") or Defaults2[Model] then
 				if USE_SA_PROPS and Defaults2[Model] then
@@ -134,7 +135,7 @@ for i,v in pairs(IPLTable) do
 			elseif Version == "SA" then
 				QX,QY,QZ,QW = Split[7],Split[8],Split[9],Split[10]
 			else
-				print("Incorrect IPL Posistion Data!")
+				OutPutDebug2("Incorrect IPL Posistion Data on model id-> "..ID)
 				vaildData = false
 			end
 	

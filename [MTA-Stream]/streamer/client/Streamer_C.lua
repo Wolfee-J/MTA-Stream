@@ -66,7 +66,7 @@ function loadModel(data,resourceName)
 		// no more than: 325 - (325-170) * draw_distance_setting -> 170 * draw_distance_setting
 		//
 		--]]
-		local drawdist = tonumber(data.draw)
+		local drawdist = MAX_DRAW_DIST and 1000 or tonumber(data.draw)
 		if drawdist >= 1000 then -- should be lods
 			drawdist = drawdist > 300 and 300 or drawdist
 		else -- if is normal obj
