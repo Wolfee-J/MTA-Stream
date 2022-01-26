@@ -37,7 +37,7 @@
 - `SA_PROP` force using sa object without replacing, this can fix the issue on some breakble obj e.g. lampost.
 - `LOD` lods
 #### Example
-`gados_p3a,0,-1,2060,1376,17,0,0,90`
+`gados_p3a,0,-1,2060,1376,17,0,0,90,OBJ`
 
 # Folder Structure
 ## /Root
