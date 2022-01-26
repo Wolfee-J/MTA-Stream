@@ -17,7 +17,7 @@
 
 - Download MTA Stream master
 - Extract the folder `[MTA-Stream]` into your MTA resources
-- Add the resource 'streamer' to the admin group in your `acl.xml`
+- Add the resource `streamer` to the admin group in your `acl.xml`
 - Start `streamer` then any maps or resource that use the MTA-Stream functionality.
 
 # File Formatting
