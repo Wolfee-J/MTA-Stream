@@ -22,18 +22,20 @@
 
 # File Formatting
 
-### MSD - (MTA-Stream-Defintions) [Previously JSD]
-`ID(Nick Name) ,dff file name ,txd file name ,col file name ,drawdistance(170-300) ,Alpha Flag(boolean) ,Backface culling(boolean) ,Assign low LOD(boolean) `
+### JSD - (MTA-Stream-Defintions) 
+`ID(Nick Name) ,dff file name ,txd file name ,col file name ,drawdistance(170-300) ,Flag,Backface culling(boolean) ,LOD (LOD Model Name or nil for no lod) `
 
 #### Example
-`ugoeast_zem294,ugoeast_zem294,southland,ugoeast_zem294,290,false,false,true`
+`treepatch12_sub,treepatch12_sub,sub_trees,treepatch12_sub,299,4,true,sublandpart22e`
 
-### MSP - (MTA-Stream-Placement) [Previously JSP]
+### JSP - (MTA-Stream-Placement) 
 ###### Line 1
 `X-Offset,Y-Offset,Z-Offset` - World offset
 ###### Other Lines
-`ID(Nick Name) ,Interior ID ,Dimension ID,x Position,y Position,z Position,x Rotation,y Rotation,z Rotation`
-
+`ID(Nick Name) ,Interior ID ,Dimension ID,x Position,y Position,z Position,x Rotation,y Rotation,z Rotation,OBJ Type`
+- `OBJ` for normal object
+- `SA_PROP` force using sa object without replacing, this can fix the issue on some breakble obj e.g. lampost.
+- `LOD` lods
 #### Example
 `gados_p3a,0,-1,2060,1376,17,0,0,90`
 
