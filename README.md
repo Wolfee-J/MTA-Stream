@@ -43,9 +43,19 @@
 ## /Root
 
 ```
-meta.xml (Meta file, defines file locations)
-gta3.MSD (Object Definitions)
-gta3.MSP (Object Placement)
+└── your-map-name/
+    ├── Content - all your map model resources in here/
+    │   ├── coll - stores all cols
+    │   ├── models - stores all dffs
+    │   └── textures - stores all txds
+    ├── Loaders/
+    │   ├── JSPLoader.lua - map placement loader script
+    │   └── JSDLoader.lua - map definition loader script
+    ├── Settings/
+    │   └── CWaterData.lua - water data
+    ├── gta3.JSD - map definition file
+    ├── gta3.JSP - map placement file
+    └── meta.xml - resources meta file
 ```
 ## /Content
 
